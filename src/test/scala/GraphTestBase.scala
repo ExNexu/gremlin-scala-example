@@ -46,6 +46,29 @@ abstract class GraphTestBase extends FunSpec with ShouldMatchers with BeforeAndA
       }
 
       it("should be able to find the shortest path from Auckland to Cape Reinga") {
+
+        def addLocation(location: String) = {
+          val vertex = graph.addV()
+          vertex.setProperty("name", location)
+          vertex
+        }
+
+        def addRoad(location1: Vertex, location2: Vertex, distanceKm: Int, minutesDrive: Int) = {
+          def edgeLabel(from: Vertex, to: Vertex) =
+            from.getProperty[String]("name") + " -> " + to.getProperty[String]("name")
+          def setEdgeProperties(edge: Edge) = {
+            edge.setProperty(distanceInKm, distanceKm)
+            edge.setProperty(minutesToDrive, minutesDrive)
+          }
+          val edge1Label = edgeLabel(location1, location2)
+          val edge1 = graph.addE(location1, location2, edge1Label)
+          setEdgeProperties(edge1)
+          val edge2Label = edgeLabel(location2, location1)
+          val edge2 = graph.addE(location2, location1, edge2Label)
+          setEdgeProperties(edge2)
+          (edge1, edge2)
+        }
+
         val auckland = addLocation("Auckland")
         val whangarei = addLocation("Whangarei")
         val dargaville = addLocation("Dargaville")
@@ -135,25 +158,4 @@ abstract class GraphTestBase extends FunSpec with ShouldMatchers with BeforeAndA
   protected implicit def asScalaIterable[T](javaIterable: java.lang.Iterable[T]): Iterable[T] =
     javaIterable.asScala
 
-  private def addLocation(location: String) = {
-    val vertex = graph.addV()
-    vertex.setProperty("name", location)
-    vertex
-  }
-
-  private def addRoad(location1: Vertex, location2: Vertex, distanceKm: Int, minutesDrive: Int) = {
-    def edgeLabel(from: Vertex, to: Vertex) =
-      from.getProperty[String]("name") + " -> " + to.getProperty[String]("name")
-    def setEdgeProperties(edge: Edge) = {
-      edge.setProperty(distanceInKm, distanceKm)
-      edge.setProperty(minutesToDrive, minutesDrive)
-    }
-    val edge1Label = edgeLabel(location1, location2)
-    val edge1 = graph.addE(location1, location2, edge1Label)
-    setEdgeProperties(edge1)
-    val edge2Label = edgeLabel(location2, location1)
-    val edge2 = graph.addE(location2, location1, edge2Label)
-    setEdgeProperties(edge2)
-    (edge1, edge2)
-  }
 }
