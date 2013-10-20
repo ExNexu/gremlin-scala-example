@@ -116,20 +116,20 @@ abstract class GraphTestBase extends FunSpec with ShouldMatchers with BeforeAndA
         val aucklandOutEdgesInVertices = auckland.->.as("auckland").outE().inV()
         val aucklandToCREdgesAndVertices =
           aucklandToCapeReingaLoop(aucklandOutEdgesInVertices, "auckland")
+
+        def pathToTime(path: java.util.List[_]) =
+          path.filter(_.isInstanceOf[Edge]).map {
+            case e: Edge ⇒ e.getProperty[Int](minutesToDrive)
+          }.reduce(_ + _)
+
+        def pathToLocations(path: java.util.List[_]) =
+          path.filter(_.isInstanceOf[Vertex]).map {
+            case v: Vertex ⇒ v.getProperty[String]("name")
+          }
+
         val aucklandToCRTimeAndLocations =
           aucklandToCREdgesAndVertices.path.map(
-            (elements: java.util.List[_]) ⇒
-              (
-                elements.filter(_.isInstanceOf[Edge]).map {
-                  case e: Edge ⇒ e.getProperty[Int](minutesToDrive)
-                }
-                .reduce(_ + _),
-                (
-                  elements.filter(_.isInstanceOf[Vertex]).map {
-                    case v: Vertex ⇒ v.getProperty[String]("name")
-                  }
-                )
-              )
+            (path: java.util.List[_]) ⇒ (pathToTime(path), pathToLocations(path))
           ).toScalaList.sortBy(_._1)
 
         aucklandToCRTimeAndLocations(0)._1 should be(325)
