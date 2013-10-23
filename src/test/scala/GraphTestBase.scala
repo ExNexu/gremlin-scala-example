@@ -120,7 +120,7 @@ abstract class GraphTestBase extends FunSpec with ShouldMatchers with BeforeAndA
         def pathToTime(path: java.util.List[_]) =
           path.filter(_.isInstanceOf[Edge]).map {
             case e: Edge ⇒ e.getProperty[Int](minutesToDrive)
-          }.reduce(_ + _)
+          }.sum
 
         def pathToLocations(path: java.util.List[_]) =
           path.filter(_.isInstanceOf[Vertex]).map {
